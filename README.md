@@ -23,6 +23,7 @@ Interactive visual explainers for AI/ML — from absolute basics to advanced top
 ![rainbow](https://github.com/ancilcleetus/My-Learning-Journey/assets/25684256/839c3524-2a1d-4779-85a0-83c562e1e5e5)
 
 ## 🟢 Machine Learning
+Coming soon 🔜
 
 ![rainbow](https://github.com/ancilcleetus/My-Learning-Journey/assets/25684256/839c3524-2a1d-4779-85a0-83c562e1e5e5)
 
@@ -30,7 +31,7 @@ Interactive visual explainers for AI/ML — from absolute basics to advanced top
 
 | Explainer | Description | Status |
 | :-------- | :---------- | :----- |
-| [The Neuron & Forward Pass](https://ancilcleetus.github.io/ai-ml-explainers/Deep-Learning/neuron_forward_pass_explainer.html) | Step-by-step visualization of how a neuron computes output | ![Status](https://img.shields.io/badge/Done-brightgreen) |
+| [The Neuron & Forward Pass](https://ancilcleetus.github.io/ai-ml-explainers/Deep-Learning/neuron_forward_pass_explainer.html) | Step-by-step visualization of how a neuron computes output | ![Status](https://img.shields.io/badge/Live-brightgreen) |
 | Activation Functions (Coming Soon) | Visualization of various activation functions | ![Status](https://img.shields.io/badge/In%20Progress-yellow) |
 
 ![rainbow](https://github.com/ancilcleetus/My-Learning-Journey/assets/25684256/839c3524-2a1d-4779-85a0-83c562e1e5e5)
@@ -60,6 +61,7 @@ Interactive visual explainers for AI/ML — from absolute basics to advanced top
 ![rainbow](https://github.com/ancilcleetus/My-Learning-Journey/assets/25684256/839c3524-2a1d-4779-85a0-83c562e1e5e5)
 
 ## 🟠 Miscellaneous
+Coming soon 🔜
 
 ![rainbow](https://github.com/ancilcleetus/My-Learning-Journey/assets/25684256/839c3524-2a1d-4779-85a0-83c562e1e5e5)
 
