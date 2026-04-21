@@ -18,7 +18,7 @@ Interactive visual explainers for AI/ML — from absolute basics to advanced top
 - [Computer Vision](#-computer-vision)
 - [Natural Language Processing](#-natural-language-processing)
 - [Generative AI](#-generative-ai)
-- [Planned](#-planned)
+- [Miscellaneous](#-miscellaneous)
 
 ![rainbow](https://github.com/ancilcleetus/My-Learning-Journey/assets/25684256/839c3524-2a1d-4779-85a0-83c562e1e5e5)
 
