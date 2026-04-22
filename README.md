@@ -33,6 +33,7 @@ Coming soon 🔜
 | :-------- | :---------- | :----- |
 | [The Neuron & Forward Pass Explainer](https://ancilcleetus.github.io/ai-ml-explainers/Deep-Learning/neuron_forward_pass_explainer.html) | Step-by-step visualization of how a neuron computes output | ![Status](https://img.shields.io/badge/Live-brightgreen) |
 | [Activation Functions Explainer](https://ancilcleetus.github.io/ai-ml-explainers/Deep-Learning/activation_functions_explainer.html) | Visualization of various activation functions | ![Status](https://img.shields.io/badge/Live-brightgreen) |
+| [Loss & Gradient Descent Explainer](https://ancilcleetus.github.io/ai-ml-explainers/Deep-Learning/loss_gradient_descent_explainer.html) | Visualization of loss, gradient descent, and how neural networks learn step by step | ![Status](https://img.shields.io/badge/In%20Progress-yellow) |
 
 ![rainbow](https://github.com/ancilcleetus/My-Learning-Journey/assets/25684256/839c3524-2a1d-4779-85a0-83c562e1e5e5)
 
