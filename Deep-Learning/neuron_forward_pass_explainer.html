@@ -399,25 +399,7 @@
     <div id="step-panels"></div>
   </div>
 
-  <!-- PART 4: Activation function visualiser -->
-  <div class="card">
-    <h2>Activation functions visualised</h2>
-    <p class="note">Activation functions introduce non-linearity. Without them, stacking layers is pointless — a composition of linear functions is still linear.</p>
-
-    <div class="row">
-      <button class="tab-btn active" id="vbtn-relu"    onclick="setViz('relu')">ReLU</button>
-      <button class="tab-btn"       id="vbtn-sigmoid" onclick="setViz('sigmoid')">Sigmoid</button>
-      <button class="tab-btn"       id="vbtn-tanh"    onclick="setViz('tanh')">Tanh</button>
-    </div>
-
-    <div style="position:relative;width:100%;height:200px;margin:0.75rem 0">
-      <canvas id="activ-chart" role="img" aria-label="Activation function curve">Activation function visualisation</canvas>
-    </div>
-
-    <div id="activ-desc" class="insight"></div>
-  </div>
-
-  <!-- PART 5: Key equations -->
+  <!-- PART 4: Key equations -->
   <div class="card">
     <h2>Key equations</h2>
 
@@ -455,7 +437,6 @@
 
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <script>
 // ─── Theme ───────────────────────────────────────────────────────────────────
 function isDark() { return matchMedia('(prefers-color-scheme: dark)').matches; }
@@ -510,15 +491,7 @@ const activFns = {
   tanh:    z => Math.tanh(z)
 };
 const activNames = { relu: 'ReLU  max(0, z)', sigmoid: 'Sigmoid  1/(1+e⁻ᶻ)', tanh: 'Tanh  (eᶻ − e⁻ᶻ) / (eᶻ + e⁻ᶻ)' };
-const activDescs = {
-  relu:    'ReLU is the workhorse of deep learning hidden layers. It is zero for all negative z and linear for positive z — simple, fast, and avoids the vanishing gradient problem that plagued older networks.',
-  sigmoid: 'Sigmoid squashes any real number to (0, 1), making it perfect for output layers in binary classification. But it saturates near 0 and 1, causing vanishing gradients in deep networks.',
-  tanh:    'Tanh is zero-centred (output range −1 to 1), which often makes training faster than sigmoid. It still saturates at large |z| values but is generally preferred over sigmoid for hidden layers.'
-};
-
 let currentActiv = 'relu';
-let vizActiv = 'relu';
-let activChart = null;
 
 function setActiv(name) {
   currentActiv = name;
@@ -526,15 +499,6 @@ function setActiv(name) {
     document.getElementById('btn-'+n).classList.toggle('active', n===name);
   });
   updateComputation();
-}
-
-function setViz(name) {
-  vizActiv = name;
-  ['relu','sigmoid','tanh'].forEach(n => {
-    document.getElementById('vbtn-'+n).classList.toggle('active', n===name);
-  });
-  drawActivChart();
-  document.getElementById('activ-desc').textContent = activDescs[name];
 }
 
 // ─── Slider helpers ───────────────────────────────────────────────────────────
@@ -781,73 +745,15 @@ function svgStep2() { return neuronSVGBase('sum'); }
 function svgStep3() { return neuronSVGBase('all'); }
 function svgStep4() { return neuronSVGBase('output'); }
 
-// ─── Activation chart ─────────────────────────────────────────────────────────
-function drawActivChart() {
-  const d = isDark();
-  const blue  = d ? '#85b7eb' : '#378ADD';
-  const teal  = d ? '#5dcaa5' : '#1D9E75';
-  const amber = d ? '#ef9f27' : '#BA7517';
-  const gridColor = d ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)';
-  const textColor = d ? '#73726c' : '#888780';
-
-  const xs = [];
-  for (let x = -4; x <= 4; x += 0.1) xs.push(+x.toFixed(1));
-
-  const datasets = {
-    relu:    { label: 'ReLU',    color: blue,  data: xs.map(x => Math.max(0,x)) },
-    sigmoid: { label: 'Sigmoid', color: teal,  data: xs.map(x => 1/(1+Math.exp(-x))) },
-    tanh:    { label: 'Tanh',    color: amber, data: xs.map(x => Math.tanh(x)) }
-  };
-
-  const ds = datasets[vizActiv];
-
-  if (activChart) activChart.destroy();
-  activChart = new Chart(document.getElementById('activ-chart'), {
-    type: 'line',
-    data: {
-      labels: xs,
-      datasets: [{
-        label: ds.label,
-        data: ds.data,
-        borderColor: ds.color,
-        borderWidth: 2,
-        pointRadius: 0,
-        tension: 0.3,
-        fill: false
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: { legend: { display: false } },
-      scales: {
-        x: {
-          ticks: { color: textColor, maxTicksLimit: 9, callback: v => xs[v] !== undefined ? xs[v].toFixed(1) : '' },
-          grid: { color: gridColor },
-          title: { display: true, text: 'z (pre-activation)', color: textColor, font: { size: 11 } }
-        },
-        y: {
-          ticks: { color: textColor, maxTicksLimit: 7 },
-          grid: { color: gridColor },
-          title: { display: true, text: 'a = f(z)', color: textColor, font: { size: 11 } }
-        }
-      }
-    }
-  });
-}
-
 // ─── Init ─────────────────────────────────────────────────────────────────────
 applyBioColors();
 buildStepper();
 updateComputation();
-drawActivChart();
-document.getElementById('activ-desc').textContent = activDescs['relu'];
 
 matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
   applyBioColors();
   buildStepper();
   updateComputation();
-  drawActivChart();
 });
 </script>
 </body>
