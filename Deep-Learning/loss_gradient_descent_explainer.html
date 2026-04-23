@@ -1,0 +1,961 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Loss & Gradient Descent — Interactive Explainer</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg-primary: #ffffff;
+      --bg-secondary: #f5f4f0;
+      --bg-tertiary: #eeece6;
+      --bg-info: #e6f1fb;
+      --bg-success: #e1f5ee;
+      --bg-warning: #faeeda;
+      --bg-danger: #fcebeb;
+      --text-primary: #1a1a18;
+      --text-secondary: #5f5e5a;
+      --text-tertiary: #888780;
+      --text-info: #185fa5;
+      --text-success: #0f6e56;
+      --text-warning: #854f0b;
+      --text-danger: #a32d2d;
+      --border-tertiary: rgba(0,0,0,0.12);
+      --border-secondary: rgba(0,0,0,0.22);
+      --border-info: #85b7eb;
+      --border-success: #5dcaa5;
+      --border-warning: #ef9f27;
+      --border-danger: #e24b4a;
+      --radius-md: 8px;
+      --radius-lg: 12px;
+      --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      --font-mono: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg-primary: #1c1c1a;
+        --bg-secondary: #252522;
+        --bg-tertiary: #2c2c2a;
+        --bg-info: #042c53;
+        --bg-success: #04342c;
+        --bg-warning: #412402;
+        --bg-danger: #501313;
+        --text-primary: #e8e6de;
+        --text-secondary: #b4b2a9;
+        --text-tertiary: #73726c;
+        --text-info: #85b7eb;
+        --text-success: #5dcaa5;
+        --text-warning: #ef9f27;
+        --text-danger: #f09595;
+        --border-tertiary: rgba(255,255,255,0.10);
+        --border-secondary: rgba(255,255,255,0.20);
+        --border-info: #185fa5;
+        --border-success: #0f6e56;
+        --border-warning: #854f0b;
+        --border-danger: #a32d2d;
+      }
+    }
+
+    body {
+      font-family: var(--font);
+      background: var(--bg-tertiary);
+      color: var(--text-primary);
+      min-height: 100vh;
+      padding: 2rem 1rem 3rem;
+      line-height: 1.6;
+    }
+
+    .page { max-width: 760px; margin: 0 auto; }
+
+    header { margin-bottom: 2rem; }
+    header h1 { font-size: 24px; font-weight: 500; color: var(--text-primary); margin-bottom: 6px; }
+    header p  { font-size: 14px; color: var(--text-secondary); max-width: 580px; line-height: 1.65; }
+
+    .card {
+      background: var(--bg-primary);
+      border: 0.5px solid var(--border-tertiary);
+      border-radius: var(--radius-lg);
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 1.25rem;
+    }
+
+    h2 { font-size: 15px; font-weight: 500; color: var(--text-primary); margin-bottom: 8px; }
+    p.note { font-size: 13px; color: var(--text-secondary); line-height: 1.65; margin-bottom: 0.75rem; }
+
+    .step-label {
+      font-size: 11px; font-weight: 500; color: var(--text-tertiary);
+      letter-spacing: .05em; text-transform: uppercase; margin: 1rem 0 6px;
+    }
+
+    .divider { border: none; border-top: 0.5px solid var(--border-tertiary); margin: 1.25rem 0; }
+
+    .eq-box {
+      background: var(--bg-secondary);
+      border: 0.5px solid var(--border-tertiary);
+      border-radius: var(--radius-md);
+      padding: 0.875rem 1rem;
+      margin: 0.5rem 0;
+      font-family: var(--font-mono);
+      font-size: 14px;
+      color: var(--text-primary);
+    }
+    .eq-note { font-family: var(--font); font-size: 12px; color: var(--text-secondary); margin-top: 6px; }
+
+    .insight {
+      border-left: 2px solid var(--border-info);
+      padding: 7px 12px;
+      font-size: 13px; color: var(--text-secondary);
+      background: var(--bg-info);
+      border-radius: 0 var(--radius-md) var(--radius-md) 0;
+      margin: 0.5rem 0; line-height: 1.55;
+    }
+    .insight.success { border-color: var(--border-success); background: var(--bg-success); color: var(--text-success); }
+    .insight.warning { border-color: var(--border-warning); background: var(--bg-warning); color: var(--text-warning); }
+    .insight.danger  { border-color: var(--border-danger);  background: var(--bg-danger);  color: var(--text-danger); }
+
+    .tab-btn {
+      padding: 6px 14px;
+      border: 0.5px solid var(--border-secondary);
+      border-radius: var(--radius-md);
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      font-size: 13px; font-family: var(--font);
+      cursor: pointer; transition: background 0.15s, border-color 0.15s;
+    }
+    .tab-btn.active { background: var(--bg-info); border-color: var(--border-info); color: var(--text-info); }
+    .tab-btn:hover:not(.active) { background: var(--bg-secondary); }
+
+    .row { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 0.75rem; }
+
+    .slider-row { display: flex; align-items: center; gap: 10px; margin: 8px 0; }
+    .slider-name { font-size: 12px; color: var(--text-tertiary); width: 100px; flex-shrink: 0; }
+    .slider-val  { font-size: 13px; color: var(--text-primary); width: 52px; text-align: right; font-family: var(--font-mono); flex-shrink: 0; }
+    input[type=range] { flex: 1; }
+
+    .canvas-wrap { position: relative; width: 100%; margin: 0.75rem 0; }
+
+    .metric-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; margin: 0.75rem 0; }
+    @media (max-width:500px) { .metric-grid { grid-template-columns: repeat(2,1fr); } }
+    .metric-card {
+      background: var(--bg-secondary); border-radius: var(--radius-md);
+      padding: 0.65rem 0.875rem;
+    }
+    .metric-card .mc-label { font-size: 11px; color: var(--text-tertiary); text-transform: uppercase; letter-spacing:.04em; margin-bottom: 3px; }
+    .metric-card .mc-val   { font-size: 20px; font-weight: 500; font-family: var(--font-mono); color: var(--text-primary); transition: color 0.3s; }
+
+    .lr-scenario-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; margin: 0.75rem 0; }
+    @media (max-width:520px) { .lr-scenario-grid { grid-template-columns: 1fr; } }
+    .lr-card {
+      border: 0.5px solid var(--border-tertiary); border-radius: var(--radius-md);
+      padding: 0.75rem 0.875rem; cursor: pointer;
+      transition: border-color 0.15s, background 0.15s;
+    }
+    .lr-card:hover { background: var(--bg-secondary); }
+    .lr-card.active { border-color: var(--border-info); background: var(--bg-info); }
+    .lr-card .lrc-name { font-size: 13px; font-weight: 500; color: var(--text-primary); margin-bottom: 2px; }
+    .lr-card.active .lrc-name { color: var(--text-info); }
+    .lr-card .lrc-sub  { font-size: 11px; color: var(--text-tertiary); }
+
+    .loss-bar-wrap { margin: 0.75rem 0; }
+    .loss-bar-row  { display: flex; align-items: center; gap: 10px; margin: 6px 0; }
+    .loss-bar-label{ font-size: 12px; color: var(--text-secondary); width: 72px; flex-shrink: 0; }
+    .loss-bar-track{ flex: 1; height: 24px; background: var(--bg-secondary); border-radius: 6px; overflow: hidden; border: 0.5px solid var(--border-tertiary); }
+    .loss-bar-fill { height: 100%; border-radius: 6px; transition: width 0.5s cubic-bezier(.4,0,.2,1), background 0.4s; display: flex; align-items: center; padding-left: 8px; font-size: 11px; font-weight: 500; color: #fff; min-width: 2px; }
+    .loss-bar-val  { font-size: 12px; font-family: var(--font-mono); color: var(--text-secondary); width: 48px; text-align: right; flex-shrink: 0; }
+
+    .gd-step-panel { margin: 0.75rem 0; }
+    .gd-step-item {
+      display: flex; gap: 12px; padding: 8px 0;
+      border-bottom: 0.5px solid var(--border-tertiary);
+    }
+    .gd-step-item:last-child { border-bottom: none; }
+    .gd-step-num {
+      width: 24px; height: 24px; border-radius: 50%;
+      background: var(--bg-info); color: var(--text-info);
+      font-size: 12px; font-weight: 500; display: flex; align-items: center;
+      justify-content: center; flex-shrink: 0; margin-top: 1px;
+    }
+    .gd-step-body { flex: 1; }
+    .gd-step-title { font-size: 13px; font-weight: 500; color: var(--text-primary); margin-bottom: 2px; }
+    .gd-step-desc  { font-size: 12px; color: var(--text-secondary); line-height: 1.55; }
+
+    footer { text-align: center; font-size: 12px; color: var(--text-tertiary); margin-top: 2rem; }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <header>
+    <h1>Loss &amp; Gradient Descent Explainer</h1>
+    <p style="font-size:12px;color:var(--text-tertiary);margin-bottom:8px">by <a href="https://www.linkedin.com/in/ancilcleetus/" style="color:var(--text-tertiary);text-decoration:none;border-bottom:0.5px solid var(--border-secondary)" target="_blank" rel="noopener">Ancil Cleetus</a></p>
+    <p>A neural network needs a way to measure how wrong its predictions are. This measurement is called the loss (or cost). The training process then adjusts the network's weights to reduce this loss, step by step.</p>
+  </header>
+
+  <!-- PART 1: What is loss -->
+  <div class="card">
+    <h2>What is loss?</h2>
+    <p class="note">Loss quantifies the gap between what the network predicts and the true answer. A perfect prediction has zero loss. The larger the gap, the larger the loss value.</p>
+
+    <div class="step-label">Interactive: drag the prediction and see the loss change</div>
+    <div class="slider-row">
+      <span class="slider-name">Actual value</span>
+      <input type="range" id="actual-slider" min="0" max="1" step="0.01" value="0.85">
+      <span class="slider-val" id="actual-val">0.85</span>
+    </div>
+    <div class="slider-row">
+      <span class="slider-name">Predicted value</span>
+      <input type="range" id="pred-slider" min="0.001" max="0.999" step="0.01" value="0.62">
+      <span class="slider-val" id="pred-val">0.62</span>
+    </div>
+
+    <div class="canvas-wrap" style="height:130px">
+      <canvas id="gap-canvas" role="img" aria-label="Gap between actual and predicted value visualisation"></canvas>
+    </div>
+
+    <div class="metric-grid">
+      <div class="metric-card">
+        <div class="mc-label">Actual</div>
+        <div class="mc-val" id="m-actual" style="color:var(--text-success)">0.85</div>
+      </div>
+      <div class="metric-card">
+        <div class="mc-label">Predicted</div>
+        <div class="mc-val" id="m-pred" style="color:var(--text-warning)">0.62</div>
+      </div>
+      <div class="metric-card">
+        <div class="mc-label">Gap = Loss</div>
+        <div class="mc-val" id="m-gap">0.23</div>
+      </div>
+    </div>
+
+    <div id="loss-what-insight" class="insight"></div>
+  </div>
+
+  <!-- PART 2: Loss landscape -->
+  <div class="card">
+    <h2>The loss landscape</h2>
+    <p class="note">Imagine the loss as a function of the network's weights. In two dimensions, this creates a loss landscape — a surface with hills, valleys, and flat plains. Training seeks the lowest point (the global minimum) in this landscape.</p>
+
+    <div class="step-label">Interactive: click a point on the landscape to place the network there</div>
+    <div class="canvas-wrap" style="height:260px">
+      <canvas id="landscape-canvas" role="img" aria-label="Loss landscape contour plot with clickable points" style="cursor:crosshair"></canvas>
+    </div>
+
+    <div class="metric-grid" style="grid-template-columns:repeat(2,1fr)">
+      <div class="metric-card">
+        <div class="mc-label">Current position</div>
+        <div class="mc-val" id="ls-pos" style="font-size:13px;padding-top:2px">(w₁, w₂)</div>
+      </div>
+      <div class="metric-card">
+        <div class="mc-label">Loss at position</div>
+        <div class="mc-val" id="ls-loss" style="transition:color 0.3s">—</div>
+      </div>
+    </div>
+
+    <div class="step-label">Key features</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:0.75rem">
+      <div style="background:var(--bg-success);border-radius:var(--radius-md);padding:8px 10px">
+        <div style="font-size:11px;font-weight:500;color:var(--text-success);margin-bottom:2px">Global minimum</div>
+        <div style="font-size:12px;color:var(--text-success)">The lowest loss point — ideal destination for training</div>
+      </div>
+      <div style="background:var(--bg-warning);border-radius:var(--radius-md);padding:8px 10px">
+        <div style="font-size:11px;font-weight:500;color:var(--text-warning);margin-bottom:2px">Local minimum</div>
+        <div style="font-size:12px;color:var(--text-warning)">A valley that isn't the lowest — gradient descent can get stuck here</div>
+      </div>
+      <div style="background:var(--bg-secondary);border-radius:var(--radius-md);padding:8px 10px">
+        <div style="font-size:11px;font-weight:500;color:var(--text-tertiary);margin-bottom:2px">Saddle point</div>
+        <div style="font-size:12px;color:var(--text-tertiary)">Flat in one direction, curving in another — slows training</div>
+      </div>
+    </div>
+
+    <div class="insight">
+      Real loss landscapes are not 2D — they exist in a space with as many dimensions as there are weights in the network, which can be billions. Surprisingly, in very high dimensions, local minima are rare — most critical points are saddle points, which gradient descent can usually escape.
+    </div>
+  </div>
+
+  <!-- PART 3: Gradient descent -->
+  <div class="card">
+    <h2>Gradient descent</h2>
+    <p class="note">Gradient descent is the algorithm that navigates the loss landscape to find the minimum. The gradient of the loss with respect to each weight tells us the direction of steepest ascent. We move in the opposite direction to decrease the loss.</p>
+
+    <div class="eq-box">
+      w ← w − η · (∂L / ∂w)
+      <div class="eq-note">η (eta) is the learning rate — the size of each step. ∂L/∂w is the gradient of the loss with respect to weight w.</div>
+    </div>
+
+    <div class="step-label">How one gradient descent step works</div>
+    <div class="gd-step-panel">
+      <div class="gd-step-item">
+        <div class="gd-step-num">1</div>
+        <div class="gd-step-body">
+          <div class="gd-step-title">Compute the loss</div>
+          <div class="gd-step-desc">Run the forward pass. Compare predictions to targets. Calculate L — a single number measuring how wrong the network is right now.</div>
+        </div>
+      </div>
+      <div class="gd-step-item">
+        <div class="gd-step-num">2</div>
+        <div class="gd-step-body">
+          <div class="gd-step-title">Compute the gradient ∂L/∂w</div>
+          <div class="gd-step-desc">For each weight, calculate how much a tiny change in that weight would increase or decrease the loss. This is the gradient — a vector pointing in the direction of steepest ascent.</div>
+        </div>
+      </div>
+      <div class="gd-step-item">
+        <div class="gd-step-num">3</div>
+        <div class="gd-step-body">
+          <div class="gd-step-title">Step in the opposite direction</div>
+          <div class="gd-step-desc">Subtract a fraction (η) of the gradient from each weight. Moving against the gradient means moving downhill — reducing the loss.</div>
+        </div>
+      </div>
+      <div class="gd-step-item">
+        <div class="gd-step-num">4</div>
+        <div class="gd-step-body">
+          <div class="gd-step-title">Repeat until convergence</div>
+          <div class="gd-step-desc">Repeat steps 1–3 for many iterations (epochs). Each step nudges the weights slightly closer to a minimum. The steps get smaller as the gradient flattens near the bottom.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="step-label">Interactive: watch gradient descent roll downhill</div>
+    <div class="slider-row">
+      <span class="slider-name">Learning rate η</span>
+      <input type="range" id="gd-lr" min="0.01" max="0.6" step="0.01" value="0.18">
+      <span class="slider-val" id="gd-lr-val">0.18</span>
+    </div>
+    <div class="row" style="margin-bottom:0.5rem">
+      <button class="tab-btn active" id="btn-reset" onclick="resetGD()">Reset</button>
+      <button class="tab-btn" id="btn-step"  onclick="stepGD()">Step →</button>
+      <button class="tab-btn" id="btn-run"   onclick="runGD()">Run all</button>
+    </div>
+
+    <div class="canvas-wrap" style="height:220px">
+      <canvas id="gd-canvas" role="img" aria-label="Gradient descent animation on a loss curve"></canvas>
+    </div>
+
+    <div class="metric-grid">
+      <div class="metric-card">
+        <div class="mc-label">Step</div>
+        <div class="mc-val" id="gd-step-count">0</div>
+      </div>
+      <div class="metric-card">
+        <div class="mc-label">Weight w</div>
+        <div class="mc-val" id="gd-w">—</div>
+      </div>
+      <div class="metric-card">
+        <div class="mc-label">Loss L(w)</div>
+        <div class="mc-val" id="gd-loss" style="transition:color 0.3s">—</div>
+      </div>
+    </div>
+
+    <div id="gd-insight" class="insight"></div>
+  </div>
+
+  <!-- PART 4: Learning rate -->
+  <div class="card">
+    <h2>The learning rate</h2>
+    <p class="note">Choosing the right learning rate is critical. Too small and training takes forever; too large and it overshoots the minimum; just right and it converges smoothly.</p>
+
+    <div class="step-label">Select a scenario</div>
+    <div class="lr-scenario-grid" id="lr-cards">
+      <div class="lr-card" onclick="setLR('small')">
+        <div class="lrc-name" style="color:var(--text-warning)">Too small</div>
+        <div class="lrc-sub">Slow convergence</div>
+      </div>
+      <div class="lr-card" onclick="setLR('large')">
+        <div class="lrc-name" style="color:var(--text-danger)">Too large</div>
+        <div class="lrc-sub">Diverges!</div>
+      </div>
+      <div class="lr-card active" onclick="setLR('good')">
+        <div class="lrc-name" style="color:var(--text-success)">Just right</div>
+        <div class="lrc-sub">Smooth convergence</div>
+      </div>
+    </div>
+
+    <div class="canvas-wrap" style="height:200px">
+      <canvas id="lr-canvas" role="img" aria-label="Learning rate effect on gradient descent"></canvas>
+    </div>
+
+    <div class="step-label" style="margin-top:0.5rem">Loss over steps</div>
+    <div class="loss-bar-wrap" id="lr-bars"></div>
+
+    <div id="lr-insight" class="insight"></div>
+  </div>
+
+  <footer>
+    Built with <span style="color:var(--text-danger);font-size:18px;vertical-align:middle">♥</span> by <a href="https://www.linkedin.com/in/ancilcleetus/" target="_blank" rel="noopener" style="color:var(--text-tertiary);text-decoration:none;border-bottom:0.5px solid var(--border-secondary)">Ancil Cleetus</a>
+    &nbsp;&nbsp;·&nbsp;&nbsp;
+    <a href="https://ancilcleetus.github.io/AI-ML-Explainers/" target="_blank" rel="noopener" style="color:var(--text-tertiary);text-decoration:none;border-bottom:0.5px solid var(--border-secondary)">AI ML Explainers</a>
+    &nbsp;&nbsp;·&nbsp;&nbsp; No external dependencies
+    &nbsp;&nbsp;·&nbsp;&nbsp; MIT License
+  </footer>
+
+</div>
+<script>
+const isDark = () => matchMedia('(prefers-color-scheme: dark)').matches;
+
+function themeColors() {
+  const d = isDark();
+  return {
+    text:    d ? '#b4b2a9' : '#5f5e5a',
+    textP:   d ? '#e8e6de' : '#1a1a18',
+    grid:    d ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.06)',
+    border:  d ? 'rgba(255,255,255,0.18)' : 'rgba(0,0,0,0.18)',
+    bg:      d ? '#1c1c1a' : '#ffffff',
+    bg2:     d ? '#252522' : '#f5f4f0',
+    green:   d ? '#5dcaa5' : '#1D9E75',
+    amber:   d ? '#ef9f27' : '#BA7517',
+    blue:    d ? '#85b7eb' : '#378ADD',
+    red:     d ? '#f09595' : '#a32d2d',
+    purple:  d ? '#afa9ec' : '#534AB7',
+  };
+}
+
+// ─── PART 1: What is loss ────────────────────────────────────────────────────
+function drawGapCanvas() {
+  const canvas = document.getElementById('gap-canvas');
+  const W = canvas.parentElement.clientWidth;
+  canvas.width  = W * devicePixelRatio;
+  canvas.height = 130 * devicePixelRatio;
+  canvas.style.width  = W + 'px';
+  canvas.style.height = '130px';
+  const ctx = canvas.getContext('2d');
+  ctx.scale(devicePixelRatio, devicePixelRatio);
+
+  const c = themeColors();
+  const actual = +document.getElementById('actual-slider').value;
+  const pred   = +document.getElementById('pred-slider').value;
+  const gap    = Math.abs(actual - pred);
+
+  const padL = 60, padR = 30, padT = 30, padB = 30;
+  const chartW = W - padL - padR;
+  const chartH = 130 - padT - padB;
+
+  const toX = v => padL + v * chartW;
+  const aX = toX(actual);
+  const pX = toX(pred);
+  const lineY = padT + chartH / 2;
+
+  ctx.strokeStyle = c.border;
+  ctx.lineWidth = 0.5;
+  ctx.beginPath(); ctx.moveTo(padL, lineY); ctx.lineTo(padL + chartW, lineY); ctx.stroke();
+
+  ['0.0','0.5','1.0'].forEach((label, i) => {
+    const x = padL + (i * 0.5) * chartW;
+    ctx.fillStyle = c.text; ctx.font = '11px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText(label, x, lineY + 18);
+  });
+
+  const pixelGap = Math.abs(aX - pX);
+  if (pixelGap > 4) {
+    const gapColor = gap > 0.3 ? (isDark() ? '#f09595' : '#a32d2d') : (isDark() ? '#ef9f27' : '#BA7517');
+    ctx.fillStyle = gapColor + '33';
+    ctx.fillRect(Math.min(aX,pX), lineY - 10, pixelGap, 20);
+    ctx.strokeStyle = gapColor; ctx.lineWidth = 1;
+    ctx.setLineDash([4,3]);
+    ctx.beginPath(); ctx.moveTo(Math.min(aX,pX), lineY); ctx.lineTo(Math.max(aX,pX), lineY); ctx.stroke();
+    ctx.setLineDash([]);
+    if (pixelGap > 140) {
+      const midX = (aX + pX) / 2;
+      ctx.fillStyle = gapColor; ctx.font = 'bold 11px sans-serif'; ctx.textAlign = 'center';
+      ctx.fillText('Gap = Loss', midX, lineY - 14);
+    }
+  }
+
+  const DOT_R = 7;
+  const MIN_LABEL_SEP = 90;
+  const aColor = isDark() ? '#5dcaa5' : '#1D9E75';
+  const pColor = isDark() ? '#ef9f27' : '#BA7517';
+  const aLabel = `Actual: ${actual.toFixed(2)}`;
+  const pLabel = `Predicted: ${pred.toFixed(2)}`;
+
+  ctx.beginPath(); ctx.arc(aX, lineY, DOT_R, 0, Math.PI*2);
+  ctx.fillStyle = aColor; ctx.fill();
+  ctx.beginPath(); ctx.arc(pX, lineY, DOT_R, 0, Math.PI*2);
+  ctx.fillStyle = pColor; ctx.fill();
+
+  ctx.font = '500 11px sans-serif';
+  if (pixelGap >= MIN_LABEL_SEP) {
+    ctx.fillStyle = aColor; ctx.textAlign = 'center'; ctx.fillText(aLabel, aX, lineY - DOT_R - 6);
+    ctx.fillStyle = pColor; ctx.textAlign = 'center'; ctx.fillText(pLabel, pX, lineY - DOT_R - 6);
+  } else {
+    const aLeft = aX < pX;
+    ctx.fillStyle = aColor; ctx.textAlign = 'center'; ctx.fillText(aLabel, aX, lineY - DOT_R - 6);
+    ctx.fillStyle = pColor; ctx.textAlign = 'center'; ctx.fillText(pLabel, pX, lineY + DOT_R + 16);
+  }
+}
+
+function updateGap() {
+  const actual = +document.getElementById('actual-slider').value;
+  const pred   = +document.getElementById('pred-slider').value;
+  const gap    = Math.abs(actual - pred);
+
+  document.getElementById('actual-val').textContent = actual.toFixed(2);
+  document.getElementById('pred-val').textContent   = pred.toFixed(2);
+  document.getElementById('m-actual').textContent   = actual.toFixed(2);
+  document.getElementById('m-pred').textContent     = pred.toFixed(2);
+  document.getElementById('m-gap').textContent      = gap.toFixed(2);
+
+  const gEl = document.getElementById('m-gap');
+  gEl.style.color = gap < 0.1 ? 'var(--text-success)' : gap < 0.3 ? 'var(--text-warning)' : 'var(--text-danger)';
+
+  const ins = document.getElementById('loss-what-insight');
+  if (gap < 0.05) {
+    ins.className = 'insight success';
+    ins.textContent = `Gap = ${gap.toFixed(2)} — near-perfect prediction. Loss is very low. During training, the network would receive only a tiny gradient signal here.`;
+  } else if (gap < 0.25) {
+    ins.className = 'insight';
+    ins.textContent = `Gap = ${gap.toFixed(2)} — moderate error. The loss produces a meaningful gradient that will push the weights toward a better prediction.`;
+  } else {
+    ins.className = 'insight danger';
+    ins.textContent = `Gap = ${gap.toFixed(2)} — large error. Loss is high. The network will receive a strong gradient signal, causing a large weight update in the next training step.`;
+  }
+  drawGapCanvas();
+}
+
+document.getElementById('actual-slider').addEventListener('input', updateGap);
+document.getElementById('pred-slider').addEventListener('input', updateGap);
+
+// ─── PART 2: Loss landscape ───────────────────────────────────────────────────
+let lsClickX = null, lsClickY = null;
+
+function lossLandscape(w1, w2) {
+  return 0.4*(Math.sin(w1*2.2+0.5)*Math.cos(w2*1.8+0.3) + Math.sin(w1*0.9-0.8)*Math.cos(w2*2.3+1.0))
+       + 0.15*(Math.pow(w1-0.1,2) + Math.pow(w2+0.2,2))
+       + 0.05*(Math.pow(w1+1.2,2) + Math.pow(w2-1.0,2))*0.3;
+}
+
+function drawLandscape() {
+  const canvas = document.getElementById('landscape-canvas');
+  const W = canvas.parentElement.clientWidth;
+  const H = 260;
+  canvas.width  = W * devicePixelRatio;
+  canvas.height = H * devicePixelRatio;
+  canvas.style.width  = W + 'px';
+  canvas.style.height = H + 'px';
+  const ctx = canvas.getContext('2d');
+  ctx.scale(devicePixelRatio, devicePixelRatio);
+
+  const c = themeColors();
+  const padL=40, padR=10, padT=10, padB=30;
+  const cW = W - padL - padR, cH = H - padT - padB;
+
+  const steps = 80;
+  const cellW = cW / steps, cellH = cH / steps;
+
+  let minL = Infinity, maxL = -Infinity;
+  const grid = [];
+  for (let j = 0; j <= steps; j++) {
+    grid[j] = [];
+    for (let i = 0; i <= steps; i++) {
+      const w1 = (i/steps)*4 - 2;
+      const w2 = (j/steps)*4 - 2;
+      const v = lossLandscape(w1, w2);
+      grid[j][i] = v;
+      if (v < minL) minL = v;
+      if (v > maxL) maxL = v;
+    }
+  }
+
+  for (let j = 0; j < steps; j++) {
+    for (let i = 0; i < steps; i++) {
+      const v = (grid[j][i] - minL) / (maxL - minL);
+      const x = padL + i*cellW, y = padT + j*cellH;
+      const d = isDark();
+      const r = d ? Math.round(28  + v*60)  : Math.round(230 - v*80);
+      const g = d ? Math.round(80  + v*60)  : Math.round(240 - v*50);
+      const b = d ? Math.round(100 + v*80)  : Math.round(255 - v*30);
+      ctx.fillStyle = `rgb(${r},${g},${b})`;
+      ctx.fillRect(x, y, cellW+1, cellH+1);
+    }
+  }
+
+  ctx.strokeStyle = c.border; ctx.lineWidth = 0.5;
+  ctx.strokeRect(padL, padT, cW, cH);
+
+  ['−2','−1','0','1','2'].forEach((l,i) => {
+    const x = padL + (i/4)*cW;
+    ctx.fillStyle = c.text; ctx.font = '10px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText(l, x, H - padB + 14);
+  });
+  ctx.fillStyle = c.text; ctx.textAlign = 'center';
+  ctx.fillText('Weight w₁', padL + cW/2, H - 2);
+  ctx.save(); ctx.translate(12, padT + cH/2); ctx.rotate(-Math.PI/2);
+  ctx.fillText('Weight w₂', 0, 0); ctx.restore();
+
+  const toCanvasX = w1 => padL + ((w1+2)/4)*cW;
+  const toCanvasY = w2 => padT + ((w2+2)/4)*cH;
+
+  const globalMin = { w1: -0.81, w2: -0.31 };
+  const localMin  = { w1:-1.35, w2: 0.95 };
+  const saddle    = { w1: 1.1,  w2: 1.1  };
+
+  const drawSpecial = (pt, color, label, lr, tb) => {
+    const cx = toCanvasX(pt.w1), cy = toCanvasY(pt.w2);
+    ctx.beginPath(); ctx.arc(cx, cy, 7, 0, Math.PI*2);
+    ctx.fillStyle = color; ctx.fill();
+    ctx.strokeStyle = c.bg; ctx.lineWidth = 1.5; ctx.stroke();
+    ctx.fillStyle = color; ctx.font = '500 11px sans-serif';
+    ctx.textAlign = lr === 'left' ? 'right' : 'left';
+    ctx.fillText(label, cx + (lr==='left'?-10:10), cy + (tb==='top'?-10:14));
+  };
+
+  drawSpecial(globalMin, isDark()?'#5dcaa5':'#1D9E75', 'Global Min', 'right', 'top');
+  drawSpecial(localMin,  isDark()?'#ef9f27':'#BA7517', 'Local Min',  'left',  'top');
+  drawSpecial(saddle,    isDark()?'#b4b2a9':'#5f5e5a', 'Saddle',     'left',  'bottom');
+
+  if (lsClickX !== null) {
+    const w1 = (lsClickX / cW)*4 - 2;
+    const w2 = (lsClickY / cH)*4 - 2;
+    const cx = padL + lsClickX, cy = padT + lsClickY;
+    ctx.beginPath(); ctx.arc(cx, cy, 6, 0, Math.PI*2);
+    ctx.fillStyle = isDark()?'#85b7eb':'#378ADD'; ctx.fill();
+    ctx.strokeStyle = c.bg; ctx.lineWidth = 1.5; ctx.stroke();
+
+    const lv = lossLandscape(w1, w2);
+    const norm = (lv - minL) / (maxL - minL);
+    document.getElementById('ls-pos').textContent   = `(${w1.toFixed(2)}, ${w2.toFixed(2)})`;
+    document.getElementById('ls-loss').textContent  = norm.toFixed(3);
+    const lEl = document.getElementById('ls-loss');
+    lEl.style.color = norm < 0.2 ? 'var(--text-success)' : norm < 0.6 ? 'var(--text-warning)' : 'var(--text-danger)';
+  }
+}
+
+document.getElementById('landscape-canvas').addEventListener('click', function(e) {
+  const rect = this.getBoundingClientRect();
+  const W = this.clientWidth;
+  const padL=40, padR=10, padT=10, padB=30;
+  const cW = W - padL - padR, cH = this.clientHeight - padT - padB;
+  const x = e.clientX - rect.left - padL;
+  const y = e.clientY - rect.top  - padT;
+  if (x >= 0 && x <= cW && y >= 0 && y <= cH) {
+    lsClickX = x; lsClickY = y;
+    drawLandscape();
+  }
+});
+
+// ─── PART 3: Gradient descent animation ───────────────────────────────────────
+function lossFunc(w) { return (w - 1.2)*(w - 1.2)*0.5 + 0.08*Math.sin(w*4)*Math.pow(Math.E,-0.3*Math.pow(w-1.2,2)); }
+function gradFunc(w) {
+  const dMain = (w - 1.2);
+  const sinPart = 0.08*Math.sin(w*4);
+  const expPart = Math.pow(Math.E, -0.3*Math.pow(w-1.2,2));
+  const dSin = 0.08*4*Math.cos(w*4)*expPart;
+  const dExp = sinPart * expPart * (-0.6*(w-1.2));
+  return dMain + dSin + dExp;
+}
+
+let gdW = -1.8, gdHistory = [], gdRunning = false, gdTimer = null;
+
+function resetGD() {
+  gdW = -1.8;
+  gdHistory = [{ w: gdW, L: lossFunc(gdW) }];
+  if (gdTimer) { clearInterval(gdTimer); gdTimer = null; }
+  gdRunning = false;
+  document.getElementById('btn-run').textContent = 'Run all';
+  document.getElementById('btn-run').classList.remove('active');
+  updateGDMetrics();
+  drawGDCanvas();
+}
+
+function stepGD() {
+  const lr = +document.getElementById('gd-lr').value;
+  const g  = gradFunc(gdW);
+  gdW = gdW - lr * g;
+  gdW = Math.max(-2.5, Math.min(3.5, gdW));
+  gdHistory.push({ w: gdW, L: lossFunc(gdW) });
+  updateGDMetrics();
+  drawGDCanvas();
+}
+
+function runGD() {
+  if (gdRunning) {
+    clearInterval(gdTimer); gdTimer = null; gdRunning = false;
+    document.getElementById('btn-run').textContent = 'Run all';
+    document.getElementById('btn-run').classList.remove('active');
+    return;
+  }
+  gdRunning = true;
+  document.getElementById('btn-run').textContent = 'Pause';
+  document.getElementById('btn-run').classList.add('active');
+  gdTimer = setInterval(() => {
+    const lr = +document.getElementById('gd-lr').value;
+    const g  = gradFunc(gdW);
+    gdW = gdW - lr * g;
+    gdW = Math.max(-2.5, Math.min(3.5, gdW));
+    gdHistory.push({ w: gdW, L: lossFunc(gdW) });
+    updateGDMetrics();
+    drawGDCanvas();
+    if (gdHistory.length > 60 || Math.abs(g * lr) < 0.0005) {
+      clearInterval(gdTimer); gdTimer = null; gdRunning = false;
+      document.getElementById('btn-run').textContent = 'Run all';
+      document.getElementById('btn-run').classList.remove('active');
+    }
+  }, 120);
+}
+
+function updateGDMetrics() {
+  const last = gdHistory[gdHistory.length-1];
+  const lr = +document.getElementById('gd-lr').value;
+  document.getElementById('gd-step-count').textContent = gdHistory.length - 1;
+  document.getElementById('gd-w').textContent   = last ? last.w.toFixed(3) : '—';
+  const lEl = document.getElementById('gd-loss');
+  lEl.textContent = last ? last.L.toFixed(4) : '—';
+  lEl.style.color = last && last.L < 0.05 ? 'var(--text-success)' : last && last.L < 0.3 ? 'var(--text-warning)' : 'var(--text-danger)';
+
+  const ins = document.getElementById('gd-insight');
+  if (!last || gdHistory.length <= 1) {
+    ins.className = 'insight';
+    ins.textContent = 'Press "Step →" to take one gradient descent step, or "Run all" to animate to convergence.';
+    return;
+  }
+  const g = Math.abs(gradFunc(last.w));
+  if (g * lr < 0.001) {
+    ins.className = 'insight success';
+    ins.textContent = `Converged after ${gdHistory.length-1} steps. Loss = ${last.L.toFixed(4)}, gradient ≈ ${g.toFixed(4)} — nearly flat. The ball has settled at the minimum.`;
+  } else if (gdHistory.length > 2 && last.L > gdHistory[gdHistory.length-2].L + 0.01) {
+    ins.className = 'insight danger';
+    ins.textContent = `Loss is increasing! The learning rate (η=${lr}) is too large — the step overshot the minimum. Try resetting and using a smaller η.`;
+  } else {
+    ins.className = 'insight';
+    ins.textContent = `Step ${gdHistory.length-1}: w = ${last.w.toFixed(3)}, L = ${last.L.toFixed(4)}, gradient = ${g.toFixed(4)}. Still descending — keep going.`;
+  }
+}
+
+function drawGDCanvas() {
+  const canvas = document.getElementById('gd-canvas');
+  const W = canvas.parentElement.clientWidth;
+  const H = 220;
+  canvas.width  = W * devicePixelRatio;
+  canvas.height = H * devicePixelRatio;
+  canvas.style.width  = W + 'px';
+  canvas.style.height = H + 'px';
+  const ctx = canvas.getContext('2d');
+  ctx.scale(devicePixelRatio, devicePixelRatio);
+
+  const c = themeColors();
+  const padL=50, padR=20, padT=15, padB=35;
+  const cW = W-padL-padR, cH = H-padT-padB;
+
+  const wMin=-2.5, wMax=3.5;
+  const ws=[]; for(let i=0;i<=200;i++) ws.push(wMin + (i/200)*(wMax-wMin));
+  const ls=ws.map(lossFunc);
+  const lMin=Math.min(...ls)*0.95, lMax=Math.max(...ls)*1.05;
+
+  const toX = w => padL + ((w-wMin)/(wMax-wMin))*cW;
+  const toY = L => padT + (1-(L-lMin)/(lMax-lMin))*cH;
+
+  ctx.strokeStyle=c.border; ctx.lineWidth=0.5;
+  [0,0.25,0.5,0.75,1].forEach(t => {
+    const y=padT+t*cH;
+    ctx.beginPath(); ctx.moveTo(padL,y); ctx.lineTo(padL+cW,y); ctx.stroke();
+    const lv=(lMax - t*(lMax-lMin)).toFixed(2);
+    ctx.fillStyle=c.text; ctx.font='10px sans-serif'; ctx.textAlign='right';
+    ctx.fillText(lv, padL-4, y+3);
+  });
+
+  ctx.strokeStyle=c.border; ctx.lineWidth=0.5;
+  [-2,-1,0,1,2,3].forEach(w => {
+    if(w<wMin||w>wMax) return;
+    const x=toX(w);
+    ctx.beginPath(); ctx.moveTo(x,padT); ctx.lineTo(x,padT+cH); ctx.stroke();
+    ctx.fillStyle=c.text; ctx.font='10px sans-serif'; ctx.textAlign='center';
+    ctx.fillText(w, x, padT+cH+16);
+  });
+
+  ctx.fillStyle=c.text; ctx.font='10px sans-serif'; ctx.textAlign='center';
+  ctx.fillText('Weight w', padL+cW/2, H-2);
+  ctx.save(); ctx.translate(12,padT+cH/2); ctx.rotate(-Math.PI/2);
+  ctx.fillText('Loss L(w)', 0, 0); ctx.restore();
+
+  ctx.beginPath();
+  ws.forEach((w,i) => { const x=toX(w),y=toY(ls[i]); i===0?ctx.moveTo(x,y):ctx.lineTo(x,y); });
+  ctx.strokeStyle=c.blue; ctx.lineWidth=2; ctx.stroke();
+
+  if (gdHistory.length > 1) {
+    ctx.beginPath();
+    gdHistory.forEach((pt,i) => {
+      const x=toX(pt.w), y=toY(pt.L);
+      i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+    });
+    ctx.strokeStyle=c.green; ctx.lineWidth=1.5;
+    ctx.setLineDash([4,3]); ctx.stroke(); ctx.setLineDash([]);
+  }
+
+  gdHistory.forEach((pt,i) => {
+    const x=toX(pt.w), y=toY(pt.L);
+    ctx.beginPath(); ctx.arc(x,y,i===gdHistory.length-1?7:4,0,Math.PI*2);
+    ctx.fillStyle = i===gdHistory.length-1 ? c.green : c.green+'88';
+    ctx.fill();
+    if(i===gdHistory.length-1) { ctx.strokeStyle=c.bg; ctx.lineWidth=1.5; ctx.stroke(); }
+  });
+}
+
+document.getElementById('gd-lr').addEventListener('input', function() {
+  document.getElementById('gd-lr-val').textContent = (+this.value).toFixed(2);
+});
+
+// ─── PART 4: Learning rate scenarios ──────────────────────────────────────────
+let currentLR = 'good';
+
+const lrScenarios = {
+  small: {
+    lr: 0.02, label: 'Too small (η=0.02)',
+    insight: { cls:'warning', msg: 'η = 0.02 — far too small. The ball creeps downhill with tiny steps and takes many iterations to converge. Computationally wasteful and can get stuck in shallow local minima.' },
+  },
+  large: {
+    lr: 0.95, label: 'Too large (η=0.95)',
+    insight: { cls:'danger',  msg: 'η = 0.95 — far too large. Each step overshoots the minimum and the loss oscillates wildly or diverges entirely. The network never settles — training fails.' },
+  },
+  good: {
+    lr: 0.22, label: 'Just right (η=0.22)',
+    insight: { cls:'success', msg: 'η = 0.22 — well-chosen. Loss decreases smoothly and converges to the minimum in a reasonable number of steps. This is what good training looks like.' },
+  },
+};
+
+function simulateLR(lr, steps=12) {
+  let w = -1.8, history = [lossFunc(w)];
+  for (let i = 0; i < steps; i++) {
+    w = w - lr * gradFunc(w);
+    w = Math.max(-4, Math.min(5, w));
+    history.push(lossFunc(w));
+  }
+  return history;
+}
+
+function drawLRCanvas() {
+  const canvas = document.getElementById('lr-canvas');
+  const W = canvas.parentElement.clientWidth;
+  const H = 200;
+  canvas.width  = W * devicePixelRatio;
+  canvas.height = H * devicePixelRatio;
+  canvas.style.width  = W + 'px';
+  canvas.style.height = H + 'px';
+  const ctx = canvas.getContext('2d');
+  ctx.scale(devicePixelRatio, devicePixelRatio);
+
+  const c = themeColors();
+  const padL=50, padR=20, padT=15, padB=35;
+  const cW = W-padL-padR, cH = H-padT-padB;
+
+  const wMin=-2.5, wMax=3.5;
+  const ws=[]; for(let i=0;i<=200;i++) ws.push(wMin+(i/200)*(wMax-wMin));
+  const ls=ws.map(lossFunc);
+  const lMin=Math.min(...ls)*0.95, lMax=Math.max(...ls)*1.4;
+
+  const toX = w => padL+((w-wMin)/(wMax-wMin))*cW;
+  const toY = L => padT+(1-(Math.min(L,lMax*1.2)-lMin)/(lMax-lMin))*cH;
+
+  ctx.strokeStyle=c.border; ctx.lineWidth=0.5;
+  [0,0.5,1].forEach(t => {
+    const y=padT+t*cH;
+    ctx.beginPath(); ctx.moveTo(padL,y); ctx.lineTo(padL+cW,y); ctx.stroke();
+    ctx.fillStyle=c.text; ctx.font='10px sans-serif'; ctx.textAlign='right';
+    ctx.fillText((lMax - t*(lMax-lMin)).toFixed(2), padL-4, y+3);
+  });
+
+  ctx.fillStyle=c.text; ctx.font='10px sans-serif'; ctx.textAlign='center';
+  ctx.fillText('Weight w', padL+cW/2, H-2);
+  ctx.save(); ctx.translate(12,padT+cH/2); ctx.rotate(-Math.PI/2);
+  ctx.fillText('Loss L(w)', 0, 0); ctx.restore();
+
+  ctx.beginPath();
+  ws.forEach((w,i) => { const x=toX(w),y=toY(ls[i]); i===0?ctx.moveTo(x,y):ctx.lineTo(x,y); });
+  ctx.strokeStyle=c.blue; ctx.lineWidth=2; ctx.stroke();
+
+  const sc = lrScenarios[currentLR];
+  const dotColor = currentLR==='small' ? c.amber : currentLR==='large' ? c.red : c.green;
+
+  let w = -1.8;
+  const steps = 12;
+  const pts = [{ w, L: lossFunc(w) }];
+  for (let i=0;i<steps;i++) {
+    w = w - sc.lr * gradFunc(w);
+    w = Math.max(-4, Math.min(5, w));
+    pts.push({ w, L: lossFunc(w) });
+  }
+
+  if (currentLR !== 'large') {
+    ctx.beginPath();
+    pts.forEach((pt,i) => { const x=toX(pt.w),y=toY(pt.L); i===0?ctx.moveTo(x,y):ctx.lineTo(x,y); });
+    ctx.strokeStyle=dotColor+'88'; ctx.lineWidth=1.5;
+    ctx.setLineDash([4,3]); ctx.stroke(); ctx.setLineDash([]);
+  }
+
+  if (currentLR === 'large') {
+    for(let i=0;i<Math.min(pts.length-1,6);i++) {
+      const x1=toX(pts[i].w), y1=toY(pts[i].L);
+      const x2=toX(pts[i+1].w), y2=toY(pts[i+1].L);
+      ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2);
+      ctx.strokeStyle=dotColor; ctx.lineWidth=1.5;
+      ctx.setLineDash([5,3]); ctx.stroke(); ctx.setLineDash([]);
+    }
+  }
+
+  pts.slice(0, currentLR==='small'?6:currentLR==='large'?6:pts.length).forEach((pt,i) => {
+    const x=toX(pt.w), y=toY(pt.L);
+    if(y < padT-10 || y > padT+cH+10) return;
+    ctx.beginPath(); ctx.arc(x,y,i===0?6:4,0,Math.PI*2);
+    ctx.fillStyle=dotColor; ctx.fill();
+    ctx.strokeStyle=c.bg; ctx.lineWidth=1; ctx.stroke();
+  });
+
+  ctx.fillStyle=c.text; ctx.font='500 11px sans-serif'; ctx.textAlign='left';
+  const lrLabel = currentLR==='small'?'Too small':'Too large';
+  if(currentLR!=='good') ctx.fillText(sc.label, padL+4, padT+14);
+  else { ctx.fillStyle=c.green; ctx.fillText(sc.label, padL+4, padT+14); }
+}
+
+function renderLRBars() {
+  const sc   = lrScenarios[currentLR];
+  const hist = simulateLR(sc.lr, 8);
+  const maxL = Math.max(...hist);
+  const wrap = document.getElementById('lr-bars');
+  const barColor = currentLR==='small' ? '#BA7517' : currentLR==='large' ? '#a32d2d' : '#1D9E75';
+
+  wrap.innerHTML = hist.map((l,i) => {
+    const pct = Math.min(100, (l/maxL)*100);
+    return `<div class="loss-bar-row">
+      <span class="loss-bar-label">Step ${i}</span>
+      <div class="loss-bar-track">
+        <div class="loss-bar-fill" style="width:${pct.toFixed(1)}%;background:${barColor}">${pct>15?l.toFixed(3):''}</div>
+      </div>
+      <span class="loss-bar-val">${l.toFixed(3)}</span>
+    </div>`;
+  }).join('');
+}
+
+function setLR(name) {
+  currentLR = name;
+  document.querySelectorAll('.lr-card').forEach((c,i) => {
+    c.classList.toggle('active', ['small','large','good'][i]===name);
+  });
+  drawLRCanvas();
+  renderLRBars();
+  const sc = lrScenarios[name];
+  const ins = document.getElementById('lr-insight');
+  ins.className = 'insight ' + sc.insight.cls;
+  ins.textContent = sc.insight.msg;
+}
+
+// ─── Init & resize ─────────────────────────────────────────────────────────────
+function initAll() {
+  updateGap();
+  drawLandscape();
+  resetGD();
+  setLR('good');
+}
+
+initAll();
+
+window.addEventListener('resize', () => {
+  drawGapCanvas();
+  drawLandscape();
+  drawGDCanvas();
+  drawLRCanvas();
+});
+
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change', initAll);
+</script>
+</body>
+</html>
