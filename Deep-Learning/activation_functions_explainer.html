@@ -232,6 +232,40 @@
     .gelu-insight .gi-title { font-size: 13px; font-weight: 500; color: var(--text-primary); margin-bottom: 4px; }
     .gelu-insight p { font-size: 13px; color: var(--text-secondary); line-height: 1.6; }
 
+    /* Clickable TOC */
+    .toc-nav {
+      background: var(--bg-primary);
+      border: 0.5px solid var(--border-tertiary);
+      border-radius: var(--radius-lg);
+      padding: 0.875rem 1.25rem;
+      margin-bottom: 1.5rem;
+    }
+    .toc-title {
+      font-size: 11px; font-weight: 500; color: var(--text-tertiary);
+      text-transform: uppercase; letter-spacing: .05em; margin-bottom: 0.5rem;
+    }
+    .toc-item {
+      display: flex; align-items: flex-start; gap: 10px;
+      padding: 5px 6px; margin: 2px -6px;
+      border-radius: var(--radius-md);
+      text-decoration: none;
+      transition: background 0.15s;
+    }
+    .toc-item:hover { background: var(--bg-secondary); }
+    .toc-num {
+      width: 22px; height: 22px; border-radius: 50%; flex-shrink: 0;
+      background: var(--bg-info); color: var(--text-info);
+      font-size: 11px; font-weight: 600;
+      display: flex; align-items: center; justify-content: center;
+      margin-top: 1px;
+    }
+    .toc-label {
+      font-size: 13px; color: var(--text-info); font-weight: 500;
+      line-height: 1.45;
+    }
+    .toc-item:hover .toc-label { color: var(--text-primary); }
+    .toc-item:hover .toc-num   { opacity: 0.7; }
+
     footer { text-align: center; font-size: 12px; color: var(--text-tertiary); margin-top: 2rem; }
 
     .dot-indicator {
@@ -248,10 +282,47 @@
     <p>If a neuron were just a weighted sum, stacking layers would be pointless — the composition of linear functions is still linear. Activation functions introduce nonlinearity, giving neural networks the power to learn complex patterns.</p>
   </header>
 
+  <!-- Clickable TOC -->
+  <nav class="toc-nav" aria-label="Table of contents">
+    <div class="toc-title">Contents</div>
+    <a href="#sec-nonlinearity" class="toc-item">
+      <div class="toc-num">1</div>
+      <span class="toc-label">Why we need nonlinearity</span>
+    </a>
+    <a href="#sec-curve-explorer" class="toc-item">
+      <div class="toc-num">2</div>
+      <span class="toc-label">Interactive curve explorer</span>
+    </a>
+    <a href="#sec-sigmoid" class="toc-item">
+      <div class="toc-num">3</div>
+      <span class="toc-label">Sigmoid</span>
+    </a>
+    <a href="#sec-tanh" class="toc-item">
+      <div class="toc-num">4</div>
+      <span class="toc-label">Tanh (hyperbolic tangent)</span>
+    </a>
+    <a href="#sec-relu" class="toc-item">
+      <div class="toc-num">5</div>
+      <span class="toc-label">The ReLU family</span>
+    </a>
+    <a href="#sec-gelu" class="toc-item">
+      <div class="toc-num">6</div>
+      <span class="toc-label">GELU deep dive</span>
+    </a>
+    <a href="#sec-summary" class="toc-item">
+      <div class="toc-num">7</div>
+      <span class="toc-label">Activation function summary</span>
+    </a>
+  </nav>
+
   <!-- PART 1: Why nonlinearity -->
   <div class="card">
-    <h2>Why we need nonlinearity</h2>
+    <h2 id="sec-nonlinearity">Why we need nonlinearity</h2>
     <p class="note">Without activation functions, any depth of network collapses into a single linear transformation — no matter how many layers you add.</p>
+
+    <div style="background:var(--bg-secondary);border-radius:var(--radius-md);padding:8px 12px;margin-bottom:0.75rem;font-size:13px;color:var(--text-secondary);line-height:1.55;border-left:3px solid var(--border-info)">
+      <strong style="color:var(--text-primary)">Why does this matter?</strong> A linear function can only draw straight lines (or flat planes). But real-world patterns — recognising a face, understanding a sentence, detecting a tumour — are curved and complex. Without nonlinearity, no matter how many layers you stack, the network can only fit a straight line through data. Activation functions are what let it bend.
+    </div>
 
     <div class="nonlinear-demo">
       <div class="nl-card">
@@ -267,7 +338,7 @@
         <div class="nl-layers">
           <div class="nl-box result">Still linear!</div>
         </div>
-        <p style="font-size:12px;color:var(--text-tertiary);margin-top:8px;line-height:1.5">z₂ = W₂(W₁x + b₁) + b₂ = (W₂W₁)x + const<br>→ just one linear function</p>
+        <p style="font-size:12px;color:var(--text-tertiary);margin-top:8px;line-height:1.5">z₂ = W₂(W₁x + b₁) + b₂ = (W₂W₁)x + const<br>→ just one linear function, no matter how many layers</p>
       </div>
       <div class="nl-card">
         <div class="nl-title" style="color:var(--text-success)">With activation functions</div>
@@ -295,7 +366,7 @@
 
   <!-- PART 2: Interactive curve explorer -->
   <div class="card">
-    <h2>Interactive curve explorer</h2>
+    <h2 id="sec-curve-explorer">Interactive curve explorer</h2>
     <p class="note">Select an activation function, drag the slider to set an input z, and watch the output and gradient update live on the curve.</p>
 
     <div class="fn-selector" id="fn-selector">
@@ -310,23 +381,27 @@
       <canvas id="curve-canvas" role="img" aria-label="Activation function curve with interactive point"></canvas>
     </div>
 
+    <div style="font-size:12px;color:var(--text-secondary);margin-bottom:0.5rem;line-height:1.55;padding:6px 10px;background:var(--bg-secondary);border-radius:var(--radius-md);border-left:3px solid var(--border-info)">
+      <strong style="color:var(--text-primary)">What is z?</strong> z is the weighted sum that a neuron computes — the raw number produced by multiplying inputs by weights and adding a bias. The activation function then transforms this raw number into the neuron's final output.
+    </div>
+
     <div class="slider-row">
-      <span class="slider-name">z</span>
+      <span class="slider-name">Neuron input z</span>
       <input type="range" id="z-slider" min="-4" max="4" step="0.05" value="0">
       <span class="slider-val" id="z-val">0.00</span>
     </div>
 
     <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:0.75rem">
       <div style="background:var(--bg-secondary);border-radius:var(--radius-md);padding:0.6rem 0.875rem">
-        <div style="font-size:11px;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:.04em;margin-bottom:3px">Input z</div>
+        <div style="font-size:11px;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:.04em;margin-bottom:3px">Neuron input (z)</div>
         <div style="font-size:20px;font-weight:500;font-family:var(--font-mono);color:var(--text-primary)" id="out-z">0.00</div>
       </div>
       <div style="background:var(--bg-secondary);border-radius:var(--radius-md);padding:0.6rem 0.875rem">
-        <div style="font-size:11px;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:.04em;margin-bottom:3px">Output f(z)</div>
+        <div style="font-size:11px;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:.04em;margin-bottom:3px">Neuron output f(z)</div>
         <div style="font-size:20px;font-weight:500;font-family:var(--font-mono);transition:color 0.3s" id="out-fz">0.50</div>
       </div>
       <div style="background:var(--bg-secondary);border-radius:var(--radius-md);padding:0.6rem 0.875rem">
-        <div style="font-size:11px;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:.04em;margin-bottom:3px">Gradient f′(z)</div>
+        <div style="font-size:11px;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:.04em;margin-bottom:3px">Learning signal f′(z)</div>
         <div style="font-size:20px;font-weight:500;font-family:var(--font-mono);transition:color 0.3s" id="out-grad">0.25</div>
       </div>
     </div>
@@ -336,8 +411,8 @@
 
   <!-- PART 3: Sigmoid -->
   <div class="card">
-    <h2>Sigmoid</h2>
-    <p class="note">The sigmoid function squashes any input into the range (0, 1). It was historically popular but suffers from the vanishing gradient problem for very positive or negative inputs.</p>
+    <h2 id="sec-sigmoid">Sigmoid</h2>
+    <p class="note">Sigmoid converts any number into a value between 0 and 1 — think of it as turning a raw score into a probability. Feed it 0 and it returns 0.5. Feed it a large positive number and it returns close to 1. Feed it a large negative number and it returns close to 0. It was historically popular but suffers from the vanishing gradient problem for very positive or negative inputs.</p>
 
     <div class="eq-box">
       σ(z) = 1 / (1 + e⁻ᶻ)
@@ -365,7 +440,7 @@
     </div>
 
     <div class="insight danger">
-      Problem: For large |z|, the gradient approaches zero — learning becomes extremely slow. This is the vanishing gradient problem. In deep networks it prevents gradients from flowing back through many layers.
+      Problem: For large |z|, the gradient approaches zero — learning becomes extremely slow. This is called the <strong>vanishing gradient problem</strong>. Think of it like trying to steer a car when the steering wheel barely responds — technically connected, but effectively useless. In deep networks, this prevents gradients from flowing back through many layers to reach the early layers.
     </div>
     <div class="insight success">
       Best use: Output layer of binary classification networks, where the output should represent a probability between 0 and 1.
@@ -374,7 +449,7 @@
 
   <!-- PART 4: Tanh -->
   <div class="card">
-    <h2>Tanh (hyperbolic tangent)</h2>
+    <h2 id="sec-tanh">Tanh (hyperbolic tangent)</h2>
     <p class="note">The tanh function is similar to sigmoid but outputs values in the range (−1, 1). Since its output is zero-centred, it often works better than sigmoid in hidden layers.</p>
 
     <div class="eq-box">
@@ -403,19 +478,19 @@
     </div>
 
     <div class="insight">
-      Zero-centred output helps gradient flow during training — if outputs are always positive (as in sigmoid), gradients in the layer below are always the same sign, causing zig-zagging weight updates.
+      <strong>Zero-centred</strong> means the output is balanced around zero — some values are positive, some negative. This matters because if a neuron always outputs positive numbers (like sigmoid does), the weight updates in the layer below are always pushed in the same direction, causing an inefficient zig-zag pattern during training. Tanh avoids this by outputting values that range from −1 to +1.
     </div>
     <div class="insight danger">
       Problem: Like sigmoid, tanh still saturates for large |z|, causing vanishing gradients. It is not the answer for very deep networks.
     </div>
     <div class="insight success">
-      Best use: RNNs and LSTMs, where zero-centred activations improve gradient flow across long sequences.
+      Best use: Sequence models like RNNs and LSTMs (networks that process text, speech, or time-series data one step at a time), where zero-centred activations improve gradient flow across long sequences.
     </div>
   </div>
 
   <!-- PART 5: ReLU Family -->
   <div class="card">
-    <h2>The ReLU family</h2>
+    <h2 id="sec-relu">The ReLU family</h2>
     <p class="note">ReLU and its variants are the most widely used activation functions in modern deep learning. They are simple, fast, and largely avoid the vanishing gradient problem for positive inputs.</p>
 
     <div class="step-label">Select a function to explore</div>
@@ -443,7 +518,7 @@
 
   <!-- PART 6: GELU deep dive -->
   <div class="card">
-    <h2>GELU deep dive</h2>
+    <h2 id="sec-gelu">GELU deep dive</h2>
     <p class="note">The Gaussian Error Linear Unit is the activation function of choice in modern transformers — GPT, BERT, and their successors all use GELU.</p>
 
     <div class="eq-box">
@@ -495,7 +570,7 @@
 
   <!-- PART 7: Summary table -->
   <div class="card">
-    <h2>Activation function summary</h2>
+    <h2 id="sec-summary">Activation function summary</h2>
     <p class="note">A quick reference covering all five functions — range, zero-centring, gradient issues, and where each is used today.</p>
 
     <div style="overflow-x:auto">
