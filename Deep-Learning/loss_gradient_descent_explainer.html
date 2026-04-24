@@ -371,7 +371,7 @@
     <div class="step-label">Interactive: watch gradient descent roll downhill</div>
     <div class="slider-row">
       <span class="slider-name">Learning rate η</span>
-      <input type="range" id="gd-lr" min="0.01" max="0.6" step="0.01" value="0.18">
+      <input type="range" id="gd-lr" min="0.01" max="0.99" step="0.01" value="0.18">
       <span class="slider-val" id="gd-lr-val">0.18</span>
     </div>
     <div class="row" style="margin-bottom:0.5rem">
@@ -905,7 +905,7 @@ function runGD() {
     gdHistory.push({ w: gdW, L: lossFunc(gdW) });
     updateGDMetrics();
     drawGDCanvas();
-    if (gdHistory.length > 60 || Math.abs(g * lr) < 0.0005) {
+    if (gdHistory.length > 300 || Math.abs(g * lr) < 0.0002) {
       clearInterval(gdTimer); gdTimer = null; gdRunning = false;
       document.getElementById('btn-run').textContent = 'Run all';
       document.getElementById('btn-run').classList.remove('active');
@@ -913,11 +913,30 @@ function runGD() {
   }, 120);
 }
 
+function isUnstable() {
+  // Case 1: strictly diverging — loss grew for 4+ consecutive steps
+  if (gdHistory.length >= 5) {
+    const tail = gdHistory.slice(-5);
+    if (tail.every((pt, i) => i === 0 || pt.L > tail[i-1].L + 0.001)) return true;
+  }
+  // Case 2: oscillating / stagnating — after 30+ steps, check whether
+  // the best loss in the LAST 20 steps is no better than the best loss
+  // in the 20 steps BEFORE that. If the loss has stopped improving for
+  // 20 straight steps, the run is stuck regardless of oscillation amplitude.
+  if (gdHistory.length >= 40) {
+    const recentBest = Math.min(...gdHistory.slice(-20).map(p => p.L));
+    const priorBest  = Math.min(...gdHistory.slice(-40, -20).map(p => p.L));
+    // No meaningful improvement in last 20 steps relative to prior 20 steps
+    if (recentBest >= priorBest - 0.0001) return true;
+  }
+  return false;
+}
+
 function updateGDMetrics() {
   const last = gdHistory[gdHistory.length-1];
   const lr = +document.getElementById('gd-lr').value;
   document.getElementById('gd-step-count').textContent = gdHistory.length - 1;
-  document.getElementById('gd-w').textContent   = last ? last.w.toFixed(3) : '—';
+  document.getElementById('gd-w').textContent = last ? last.w.toFixed(3) : '—';
   const lEl = document.getElementById('gd-loss');
   lEl.textContent = last ? last.L.toFixed(4) : '—';
   lEl.style.color = last && last.L < 0.05 ? 'var(--text-success)' : last && last.L < 0.3 ? 'var(--text-warning)' : 'var(--text-danger)';
@@ -929,12 +948,22 @@ function updateGDMetrics() {
     return;
   }
   const g = Math.abs(gradFunc(last.w));
-  if (g * lr < 0.001) {
-    ins.className = 'insight success';
-    ins.textContent = `Converged after ${gdHistory.length-1} steps. Loss = ${last.L.toFixed(4)}, gradient ≈ ${g.toFixed(4)} — nearly flat. The ball has settled at the minimum.`;
-  } else if (gdHistory.length > 2 && last.L > gdHistory[gdHistory.length-2].L + 0.01) {
+
+  if (isUnstable()) {
     ins.className = 'insight danger';
-    ins.textContent = `Loss is increasing! The learning rate (η=${lr}) is too large — the step overshot the minimum. Try resetting and using a smaller η.`;
+    ins.textContent = `Unstable! The learning rate η=${lr.toFixed(2)} is too large — each step overshoots the minimum and the loss oscillates or grows rather than settling. The ball keeps bouncing past the bottom instead of rolling into it. Reset and try a smaller η.`;
+    // Auto-stop the run when instability is confirmed
+    if (gdRunning) {
+      clearInterval(gdTimer); gdTimer = null; gdRunning = false;
+      document.getElementById('btn-run').textContent = 'Run all';
+      document.getElementById('btn-run').classList.remove('active');
+    }
+  } else if (g * lr < 0.0002) {
+    ins.className = 'insight success';
+    ins.textContent = `Converged after ${gdHistory.length-1} steps! Loss = ${last.L.toFixed(4)}, gradient ≈ ${g.toFixed(4)} — nearly flat. The ball has settled at the minimum.`;
+  } else if (gdHistory.length >= 300) {
+    ins.className = 'insight warning';
+    ins.textContent = `Reached 300 steps without full convergence. Loss = ${last.L.toFixed(4)}. With η=${lr.toFixed(2)} the steps are very small — training is making progress but extremely slowly. Try a larger learning rate.`;
   } else {
     ins.className = 'insight';
     ins.textContent = `Step ${gdHistory.length-1}: w = ${last.w.toFixed(3)}, L = ${last.L.toFixed(4)}, gradient = ${g.toFixed(4)}. Still descending — keep going.`;
@@ -1119,27 +1148,56 @@ function drawLRCanvas() {
     ctx.strokeStyle=c.bg; ctx.lineWidth=1; ctx.stroke();
   });
 
-  ctx.fillStyle=c.text; ctx.font='500 11px sans-serif'; ctx.textAlign='left';
-  const lrLabel = currentLR==='small'?'Too small':'Too large';
-  if(currentLR!=='good') ctx.fillText(sc.label, padL+4, padT+14);
-  else { ctx.fillStyle=c.green; ctx.fillText(sc.label, padL+4, padT+14); }
+  ctx.font='500 11px sans-serif'; ctx.textAlign='left';
+  if (currentLR==='small') {
+    ctx.fillStyle=c.amber; ctx.fillText(sc.label, padL+4, padT+14);
+  } else if (currentLR==='large') {
+    ctx.fillStyle=c.red;   ctx.fillText(sc.label, padL+4, padT+14);
+  } else {
+    ctx.fillStyle=c.green; ctx.fillText(sc.label, padL+4, padT+14);
+  }
 }
 
 function renderLRBars() {
   const sc   = lrScenarios[currentLR];
   const hist = simulateLR(sc.lr, 8);
-  const maxL = Math.max(...hist);
+
+  // Shared fixed scale: compute max loss across ALL three scenarios
+  // so bar widths are comparable regardless of which scenario is selected
+  const allHists = ['small','large','good'].map(k => simulateLR(lrScenarios[k].lr, 8));
+  const sharedMaxL = Math.max(...allHists.flat());
+
   const wrap = document.getElementById('lr-bars');
   const barColor = currentLR==='small' ? '#BA7517' : currentLR==='large' ? '#a32d2d' : '#1D9E75';
+  const dangerColor  = '#a32d2d';
+  const successColor = '#0f6e56';
+  const neutralColor = '#888780';
 
-  wrap.innerHTML = hist.map((l,i) => {
-    const pct = Math.min(100, (l/maxL)*100);
+  wrap.innerHTML = hist.map((l, i) => {
+    const pct = Math.min(100, Math.max(0, (l / sharedMaxL) * 100));
+
+    // Direction indicator vs previous step
+    let arrow = '', arrowColor = neutralColor, arrowTitle = '';
+    if (i === 0) {
+      arrow = '—'; arrowColor = neutralColor; arrowTitle = 'Starting point';
+    } else {
+      const diff = l - hist[i-1];
+      if (diff < -0.0005) {
+        arrow = '↓'; arrowColor = successColor; arrowTitle = `−${Math.abs(diff).toFixed(4)} (improving)`;
+      } else if (diff > 0.0005) {
+        arrow = '↑'; arrowColor = dangerColor;  arrowTitle = `+${diff.toFixed(4)} (worsening)`;
+      } else {
+        arrow = '→'; arrowColor = neutralColor; arrowTitle = 'No change';
+      }
+    }
+
     return `<div class="loss-bar-row">
       <span class="loss-bar-label">Step ${i}</span>
       <div class="loss-bar-track">
         <div class="loss-bar-fill" style="width:${pct.toFixed(1)}%;background:${barColor}">${pct>15?l.toFixed(3):''}</div>
       </div>
       <span class="loss-bar-val">${l.toFixed(3)}</span>
+      <span title="${arrowTitle}" style="font-size:14px;font-weight:600;color:${arrowColor};width:18px;text-align:center;flex-shrink:0">${arrow}</span>
     </div>`;
   }).join('');
 }
