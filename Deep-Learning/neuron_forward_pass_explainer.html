@@ -200,6 +200,40 @@
 
     .relu-viz { display: flex; align-items: flex-end; gap: 0; margin: 0.75rem 0; height: 90px; position: relative; }
 
+    /* Clickable TOC */
+    .toc-nav {
+      background: var(--bg-primary);
+      border: 0.5px solid var(--border-tertiary);
+      border-radius: var(--radius-lg);
+      padding: 0.875rem 1.25rem;
+      margin-bottom: 1.5rem;
+    }
+    .toc-title {
+      font-size: 11px; font-weight: 500; color: var(--text-tertiary);
+      text-transform: uppercase; letter-spacing: .05em; margin-bottom: 0.5rem;
+    }
+    .toc-item {
+      display: flex; align-items: flex-start; gap: 10px;
+      padding: 5px 6px; margin: 2px -6px;
+      border-radius: var(--radius-md);
+      text-decoration: none;
+      transition: background 0.15s;
+    }
+    .toc-item:hover { background: var(--bg-secondary); }
+    .toc-num {
+      width: 22px; height: 22px; border-radius: 50%; flex-shrink: 0;
+      background: var(--bg-info); color: var(--text-info);
+      font-size: 11px; font-weight: 600;
+      display: flex; align-items: center; justify-content: center;
+      margin-top: 1px;
+    }
+    .toc-label {
+      font-size: 13px; color: var(--text-info); font-weight: 500;
+      line-height: 1.45;
+    }
+    .toc-item:hover .toc-label { color: var(--text-primary); }
+    .toc-item:hover .toc-num   { opacity: 0.7; }
+
     footer { text-align: center; font-size: 12px; color: var(--text-tertiary); margin-top: 2rem; }
 
     .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 0.75rem 0; }
@@ -221,9 +255,30 @@
     <p>Every neural network, no matter how large, is built from a single repeating unit: the neuron. Understand one neuron and you understand the whole stack.</p>
   </header>
 
+  <!-- Clickable TOC -->
+  <nav class="toc-nav" aria-label="Table of contents">
+    <div class="toc-title">Contents</div>
+    <a href="#sec-bio-vs-art" class="toc-item">
+      <div class="toc-num">1</div>
+      <span class="toc-label">Biological vs. artificial neuron</span>
+    </a>
+    <a href="#sec-interactive" class="toc-item">
+      <div class="toc-num">2</div>
+      <span class="toc-label">Interactive: adjust weights &amp; inputs</span>
+    </a>
+    <a href="#sec-forward-pass" class="toc-item">
+      <div class="toc-num">3</div>
+      <span class="toc-label">The forward pass — step by step</span>
+    </a>
+    <a href="#sec-equations" class="toc-item">
+      <div class="toc-num">4</div>
+      <span class="toc-label">Key equations</span>
+    </a>
+  </nav>
+
   <!-- PART 1: Bio vs Artificial -->
   <div class="card">
-    <h2>Biological vs. artificial neuron</h2>
+    <h2 id="sec-bio-vs-art">Biological vs. artificial neuron</h2>
     <p class="note">The artificial neuron is loosely inspired by biology. Dendrites → inputs, synaptic strength → weights, cell body → weighted sum + activation, axon → output.</p>
 
     <div class="bio-art-grid">
@@ -314,7 +369,7 @@
 
   <!-- PART 2: Interactive neuron -->
   <div class="card">
-    <h2>Interactive: adjust weights &amp; inputs</h2>
+    <h2 id="sec-interactive">Interactive: adjust weights &amp; inputs</h2>
     <p class="note">Drag the sliders to change input values and weights. Watch the weighted sum z and final output a update in real time.</p>
 
     <div class="step-label">Inputs (x)</div>
@@ -388,7 +443,7 @@
 
   <!-- PART 3: Forward pass stepper -->
   <div class="card">
-    <h2>The forward pass — step by step</h2>
+    <h2 id="sec-forward-pass">The forward pass — step by step</h2>
     <p class="note">Data flows left to right through the neuron. Click through each stage using the example values (x₁=1.5, x₂=−2.0, x₃=0.8 with ReLU).</p>
 
     <div class="stepper-nav">
@@ -402,7 +457,7 @@
 
   <!-- PART 4: Key equations -->
   <div class="card">
-    <h2>Key equations</h2>
+    <h2 id="sec-equations">Key equations</h2>
 
     <div class="step-label">Weighted sum</div>
     <div class="eq-box">
