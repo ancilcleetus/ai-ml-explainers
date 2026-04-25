@@ -13,6 +13,7 @@ Interactive visual explainers for AI/ML — from absolute basics to advanced top
 
 ## 📚 Table of Contents
 
+- [Roadmaps](#%EF%B8%8F-roadmaps)
 - [Machine Learning](#-machine-learning)
 - [Deep Learning](#-deep-learning)
 - [Computer Vision](#-computer-vision)
@@ -22,12 +23,28 @@ Interactive visual explainers for AI/ML — from absolute basics to advanced top
 
 ![rainbow](https://github.com/ancilcleetus/My-Learning-Journey/assets/25684256/839c3524-2a1d-4779-85a0-83c562e1e5e5)
 
+## 🗺️ Roadmaps
+
+Detailed explainer roadmaps for each area:
+
+| Area | Roadmap | Progress |
+| :--- | :------ | :------- |
+| 🔴 Deep Learning | [View Roadmap →](https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/deep_learning_explainer_roadmap.html) | 3 / 17 (18%) |
+| 🟢 Machine Learning | Coming soon | — |
+| 🔵 Computer Vision | Coming soon | — |
+| 🟡 Natural Language Processing | Coming soon | — |
+| 🟣 Generative AI | Coming soon | — |
+
+![rainbow](https://github.com/ancilcleetus/My-Learning-Journey/assets/25684256/839c3524-2a1d-4779-85a0-83c562e1e5e5)
+
 ## 🟢 Machine Learning
 Coming soon 🔜
 
 ![rainbow](https://github.com/ancilcleetus/My-Learning-Journey/assets/25684256/839c3524-2a1d-4779-85a0-83c562e1e5e5)
 
 ## 🔴 Deep Learning
+
+📋 [View Deep Learning Explainer Roadmap →](https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/deep_learning_explainer_roadmap.html)
 
 | Explainer | Description | Status |
 | :-------- | :---------- | :----- |
@@ -69,9 +86,9 @@ Coming soon 🔜
 
 ## 💡 How to Use
 
-1. Click on any explainer link  
-2. Open in browser  
-3. Interact and learn visually  
+1. Click on any explainer link
+2. Open in browser
+3. Interact and learn visually
 
 ![rainbow](https://github.com/ancilcleetus/My-Learning-Journey/assets/25684256/839c3524-2a1d-4779-85a0-83c562e1e5e5)
 
