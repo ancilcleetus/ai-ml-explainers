@@ -52,6 +52,7 @@ Coming soon 🔜
 | [Activation Functions Explainer](https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/activation_functions_explainer.html) | Visualization of various activation functions | ![Status](https://img.shields.io/badge/Live-brightgreen) |
 | [Loss & Gradient Descent Explainer](https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/loss_gradient_descent_explainer.html) | Visualization of loss, gradient descent, and how neural networks learn step by step | ![Status](https://img.shields.io/badge/Live-brightgreen) |
 | [Loss Functions Overview Explainer](https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/loss_functions_overview_explainer.html) | Visual introduction to loss functions — what loss is, task-to-loss mapping, and interactive deep dive into MSE, MAE, Huber, and Cross-Entropy with a practical decision guide | ![Status](https://img.shields.io/badge/Live-brightgreen) |
+| [Cross-Entropy Loss Explainer](https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/cross_entropy_loss_explainer.html) | Cross-entropy loss explained from first principles — information theory intuition, binary vs categorical formulas, and an interactive multiclass classification example | ![Status](https://img.shields.io/badge/In%20Progress-yellow) |
 
 ![rainbow](assets/rainbow-divider.png)
 
