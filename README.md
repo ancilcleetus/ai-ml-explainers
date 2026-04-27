@@ -29,7 +29,7 @@ Detailed explainer roadmaps for each area:
 
 | Area | Roadmap | Progress |
 | :--- | :------ | :------- |
-| 🔴 Deep Learning | [View Roadmap →](https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/deep_learning_explainer_roadmap.html) | 3 / 17 (18%) |
+| 🔴 Deep Learning | [View Roadmap →](https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/deep_learning_explainer_roadmap.html) | 4 / 17 (24%) |
 | 🟢 Machine Learning | Coming soon | — |
 | 🔵 Computer Vision | Coming soon | — |
 | 🟡 Natural Language Processing | Coming soon | — |
