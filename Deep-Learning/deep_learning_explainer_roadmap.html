@@ -88,13 +88,13 @@
   <div class="summary-card">
     <h2>Overview</h2>
     <div class="summary-grid">
-      <div class="summary-metric"><div class="sm-val">18</div><div class="sm-label">Total explainers</div></div>
-      <div class="summary-metric"><div class="sm-val" style="color:var(--text-success)">4</div><div class="sm-label">Completed</div></div>
-      <div class="summary-metric"><div class="sm-val" style="color:var(--text-warning)">14</div><div class="sm-label">Planned</div></div>
+      <div class="summary-metric"><div class="sm-val" id="count-total">—</div><div class="sm-label">Total explainers</div></div>
+      <div class="summary-metric"><div class="sm-val" id="count-done" style="color:var(--text-success)">—</div><div class="sm-label">Completed</div></div>
+      <div class="summary-metric"><div class="sm-val" id="count-planned" style="color:var(--text-warning)">—</div><div class="sm-label">Planned</div></div>
     </div>
     <div class="progress-bar-wrap" style="margin-top:0.5rem">
-      <div class="pb-label"><span>Overall progress</span><span>3 / 17 &nbsp;(18%)</span></div>
-      <div class="pb-track" style="height:7px"><div class="pb-fill" id="overall-pb" style="width:17.6%;background:var(--text-danger)"></div></div>
+      <div class="pb-label"><span>Overall progress</span><span id="overall-label">— / —</span></div>
+      <div class="pb-track" style="height:7px"><div class="pb-fill" id="overall-pb" style="width:0%;background:var(--text-danger)"></div></div>
     </div>
     <div class="divider"></div>
     <div class="step-label">Progress by category</div>
@@ -145,12 +145,12 @@
     </div>
     <div class="explainer-list">
       <div class="explainer-row">
-        <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">3</div>
+        <div class="row-num" style="background:var(--bg-success);color:var(--text-success)">3</div>
         <div class="row-body">
-          <div class="row-title">Loss Functions Overview Explainer</div>
+          <div class="row-title"><a href="https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/loss_functions_overview_explainer.html" target="_blank" rel="noopener">Loss Functions Overview Explainer ↗</a></div>
           <div class="row-concept">What is loss, task-to-loss mapping: MSE for regression, Cross-Entropy for classification, MAE, Huber loss — when to use which and why</div>
         </div>
-        <div class="row-status"><span class="status-badge status-planned">Planned</span></div>
+        <div class="row-status"><span class="status-badge status-done">✓ Live</span></div>
       </div>
       <div class="explainer-row">
         <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">4</div>
@@ -171,7 +171,7 @@
     </div>
     <div class="explainer-list">
       <div class="explainer-row">
-        <div class="row-num" style="background:var(--bg-success);color:var(--text-success)">6</div>
+        <div class="row-num" style="background:var(--bg-success);color:var(--text-success)">5</div>
         <div class="row-body">
           <div class="row-title"><a href="https://ancilcleetus.github.io/AI-ML-Explainers/Deep-Learning/loss_gradient_descent_explainer.html" target="_blank" rel="noopener">Loss &amp; Gradient Descent Explainer ↗</a></div>
           <div class="row-concept">What is loss, loss landscape with interactive contour map, gradient descent algorithm, weight update rule w ← w − η·∂L/∂w, learning rate effect (too small / too large / just right)</div>
@@ -179,7 +179,7 @@
         <div class="row-status"><span class="status-badge status-done">✓ Live</span></div>
       </div>
       <div class="explainer-row">
-        <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">7</div>
+        <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">6</div>
         <div class="row-body">
           <div class="row-title">Optimizers Explainer</div>
           <div class="row-concept">SGD, SGD with Momentum, RMSProp, Adam, AdamW — adaptive learning rates, momentum, bias correction, comparison on a loss landscape, when to use each in practice</div>
@@ -197,7 +197,7 @@
     </div>
     <div class="explainer-list">
       <div class="explainer-row">
-        <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">8</div>
+        <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">7</div>
         <div class="row-body">
           <div class="row-title">Chain Rule &amp; Computation Graph Explainer</div>
           <div class="row-concept">The chain rule of calculus, computation graphs, forward pass vs backward pass, local gradients at each node, interactive graph where you click nodes to see gradient flow</div>
@@ -205,7 +205,7 @@
         <div class="row-status"><span class="status-badge status-planned">Planned</span></div>
       </div>
       <div class="explainer-row">
-        <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">9</div>
+        <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">8</div>
         <div class="row-body">
           <div class="row-title">Backward Pass &amp; Full Network Backpropagation Explainer</div>
           <div class="row-concept">Backpropagating through a full network layer by layer, gradient accumulation, weight updates end to end, delta rule, numerical gradient verification</div>
@@ -223,7 +223,7 @@
     </div>
     <div class="explainer-list">
       <div class="explainer-row">
-        <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">10</div>
+        <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">9</div>
         <div class="row-body">
           <div class="row-title">Vanishing &amp; Exploding Gradients Explainer</div>
           <div class="row-concept">Why gradients shrink or explode with depth, sigmoid saturation causing vanishing, gradient norms across layers, gradient clipping, depth slider showing gradient magnitude decay</div>
@@ -231,7 +231,7 @@
         <div class="row-status"><span class="status-badge status-planned">Planned</span></div>
       </div>
       <div class="explainer-row">
-        <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">11</div>
+        <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">10</div>
         <div class="row-body">
           <div class="row-title">Weight Initialization Explainer</div>
           <div class="row-concept">Why initialization matters, zero-init failure (symmetry breaking), random init problems, Xavier/Glorot initialization, He initialization, interactive visualisation of activation distributions at initialization</div>
@@ -249,7 +249,7 @@
     </div>
     <div class="explainer-list">
       <div class="explainer-row">
-        <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">12</div>
+        <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">11</div>
         <div class="row-body">
           <div class="row-title">From Neuron to Network Explainer</div>
           <div class="row-concept">From one neuron to a layer, layer types (input, hidden, output), fully connected layers &amp; weight matrices, depth vs width trade-off, interactive network builder</div>
@@ -257,7 +257,7 @@
         <div class="row-status"><span class="status-badge status-planned">Planned</span></div>
       </div>
       <div class="explainer-row">
-        <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">13</div>
+        <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">12</div>
         <div class="row-body">
           <div class="row-title">Universal Approximation Theorem Explainer</div>
           <div class="row-concept">What the UAT says and what it does not, width vs depth, practical implications for network design, interactive demo fitting arbitrary functions</div>
@@ -275,7 +275,7 @@
     </div>
     <div class="explainer-list">
       <div class="explainer-row">
-        <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">14</div>
+        <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">13</div>
         <div class="row-body">
           <div class="row-title">Batch Normalization Explainer</div>
           <div class="row-concept">Internal covariate shift, normalizing activations per mini-batch, learnable scale &amp; shift parameters γ and β, training vs inference behaviour, effect on gradient flow</div>
@@ -293,7 +293,7 @@
     </div>
     <div class="explainer-list">
       <div class="explainer-row">
-        <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">15</div>
+        <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">14</div>
         <div class="row-body">
           <div class="row-title">Dropout &amp; Weight Decay Explainer</div>
           <div class="row-concept">Overfitting, dropout mechanism and stochastic regularisation, train vs test mode difference, weight decay (L2 regularization), interactive overfitting demo</div>
@@ -311,7 +311,7 @@
     </div>
     <div class="explainer-list">
       <div class="explainer-row">
-        <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">16</div>
+        <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">15</div>
         <div class="row-body">
           <div class="row-title">Training Loop &amp; Convergence Explainer</div>
           <div class="row-concept">The full training loop, mini-batches and epochs, overfitting vs underfitting, bias-variance trade-off, train/val/test split, early stopping</div>
@@ -319,7 +319,7 @@
         <div class="row-status"><span class="status-badge status-planned">Planned</span></div>
       </div>
       <div class="explainer-row">
-        <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">17</div>
+        <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">16</div>
         <div class="row-body">
           <div class="row-title">Learning Rate Schedules Explainer</div>
           <div class="row-concept">Constant LR, step decay, cosine annealing, warmup + cosine (modern default), cyclical LR — all visualised as interactive schedule curves with live loss simulation</div>
@@ -337,7 +337,7 @@
     </div>
     <div class="explainer-list">
       <div class="explainer-row">
-        <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">18</div>
+        <div class="row-num" style="background:var(--bg-secondary);color:var(--text-tertiary)">17</div>
         <div class="row-body">
           <div class="row-title">Evaluation Metrics Explainer</div>
           <div class="row-concept">Accuracy, precision, recall, F1 score, ROC curve, AUC — interactive confusion matrix, when each metric matters and when it misleads (class imbalance)</div>
@@ -368,29 +368,61 @@
 
 </div>
 <script>
-const categories = [
-  { label: 'The neuron & forward pass',       total: 1, done: 1 },
-  { label: 'Activation functions',            total: 1, done: 1 },
-  { label: 'Loss functions',                  total: 2, done: 0 },
-  { label: 'Optimization & gradient descent', total: 2, done: 1 },
-  { label: 'Backpropagation',                 total: 2, done: 0 },
-  { label: 'Gradient flow problems',          total: 2, done: 0 },
-  { label: 'Building a multi-layer network',  total: 2, done: 0 },
-  { label: 'Normalization',                   total: 1, done: 0 },
-  { label: 'Regularization',                  total: 1, done: 0 },
-  { label: 'Training loop & convergence',     total: 2, done: 0 },
-  { label: 'Evaluation',                      total: 1, done: 0 },
-];
-const barsEl = document.getElementById('category-bars');
-barsEl.innerHTML = categories.map(c => {
-  const pct = Math.round((c.done / c.total) * 100);
-  const barColor = pct <= 25 ? 'var(--text-danger)' : pct <= 50 ? 'var(--text-warning)' : pct <= 75 ? 'var(--text-info)' : 'var(--text-success)';
-  const pctCeil = Math.ceil(pct);
-  return `<div class="progress-bar-wrap">
+// ── Dynamic progress computation ──────────────────────────────────────────────
+// All counts derived from DOM — no hardcoding needed.
+// Each .section maps to a category via its .section-title text.
+// Done = rows with status-done badge. Total = all explainer-row elements.
+
+function computeProgress() {
+  // Gather all sections in order
+  const sections = document.querySelectorAll('.section');
+  const catData  = [];
+  let grandTotal = 0, grandDone = 0;
+
+  sections.forEach(sec => {
+    const titleEl = sec.querySelector('.section-title');
+    if (!titleEl) return;
+    const label = titleEl.textContent.trim();
+    const rows  = sec.querySelectorAll('.explainer-row');
+    const done  = sec.querySelectorAll('.status-done').length;
+    const total = rows.length;
+    grandTotal += total;
+    grandDone  += done;
+    catData.push({ label, total, done });
+  });
+
+  // Overall summary cards
+  document.getElementById('count-total').textContent   = grandTotal;
+  document.getElementById('count-done').textContent    = grandDone;
+  document.getElementById('count-planned').textContent = grandTotal - grandDone;
+
+  // Overall progress bar
+  const overallPct = grandTotal > 0 ? (grandDone / grandTotal) * 100 : 0;
+  const overallCeil = Math.ceil(overallPct);
+  document.getElementById('overall-label').textContent =
+    `${grandDone} / ${grandTotal}  (${overallCeil}%)`;
+  const pb = document.getElementById('overall-pb');
+  pb.style.width = overallPct.toFixed(1) + '%';
+  pb.style.background = overallPct <= 25 ? 'var(--text-danger)'
+    : overallPct <= 50 ? 'var(--text-warning)'
+    : overallPct <= 75 ? 'var(--text-info)'
+    : 'var(--text-success)';
+
+  // Category bars
+  const barsEl = document.getElementById('category-bars');
+  barsEl.innerHTML = catData.map(c => {
+    const pct      = c.total > 0 ? (c.done / c.total) * 100 : 0;
+    const pctCeil  = Math.ceil(pct);
+    const barColor = pct <= 25 ? 'var(--text-danger)' : pct <= 50 ? 'var(--text-warning)'
+      : pct <= 75 ? 'var(--text-info)' : 'var(--text-success)';
+    return `<div class="progress-bar-wrap">
     <div class="pb-label"><span>${c.label}</span><span style="font-family:var(--font-mono)">${c.done}/${c.total} (${pctCeil}%)</span></div>
-    <div class="pb-track"><div class="pb-fill" style="width:${pct}%;background:${barColor}"></div></div>
+    <div class="pb-track"><div class="pb-fill" style="width:${pct.toFixed(1)}%;background:${barColor}"></div></div>
   </div>`;
-}).join('');
+  }).join('');
+}
+
+computeProgress();
 </script>
 </body>
 </html>
